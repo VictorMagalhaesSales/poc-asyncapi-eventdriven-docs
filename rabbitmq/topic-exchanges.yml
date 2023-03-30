@@ -1,0 +1,73 @@
+asyncapi: 2.6.0
+info:
+  title: Application With Topic Exchange
+  version: 2.0.0
+  description: Aplicação que se inscreve e publica eventos em uma exchange do tipo Topic
+  
+channels:
+
+  publisher-channel-example:
+    description: |
+      **Exchange**: my-topic-exchange \
+      **Type**: Topic \
+      **Bindings**: my.example.key
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: my-topic-exchange
+          type: topic
+    publish:
+      message:
+        $ref: '#/components/messages/ExampleEvent'
+      bindings:
+        amqp:
+          cc: ['my.example.key']
+
+  subscriber-channel-example:
+    description: |
+      **Exchange**: my-topic-exchange \
+      **Type**: Topic \
+      **Bindings**: my.example.key
+    bindings:
+      amqp:
+        is: queue
+        queue:
+          name: my-queue
+        exchange:
+          name: my-topic-exchange
+          type: topic
+    subscribe:
+      tags:
+        - name: Example
+          description: example-tag
+      message:
+        $ref: '#/components/messages/ExampleEvent'
+      bindings:
+        amqp:
+          cc: ['my.example.key']
+        
+components:
+  messages:
+    ExampleEvent:
+      name: Example Event
+      title: Evento de exemplo
+      summary: Descrição longa acerca do evento
+      contentType: application/json
+      payload:
+       $ref: '#/components/schemas/ExamplePayload'
+      headers:
+        type: object
+        properties:
+          type:
+            type: string
+          subject:
+            type: string
+
+  schemas:
+    ExamplePayload:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the user
